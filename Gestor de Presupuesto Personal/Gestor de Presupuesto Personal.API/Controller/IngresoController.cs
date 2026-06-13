@@ -1,67 +1,92 @@
-﻿namespace Gestor_de_Presupuesto_Personal.API.Controller
+﻿namespace Gestor_de_Presupuesto_Personal.API.Controllers;
+
+using Gestor_de_Presupuesto_Personal.API.Data;
+using Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
+using Gestor_de_Presupuesto_Personal.API.Model.Entities;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class IngresoController : ControllerBase
 {
-    using Gestor_de_Presupuesto_Personal.API.Data;
-    using Gestor_de_Presupuesto_Personal.API.Model.Entities;
-    using Microsoft.AspNetCore.Mvc;
-
-    [ApiController]
-    [Route("api/[controller]")]
-    public class IngresoController : ControllerBase
+    [HttpGet]
+    public IActionResult Get()
     {
-        [HttpGet]
-        public IActionResult Get()
+        var response = DataStore.Ingresos.Select(i => new IngresoDTO
         {
-            return Ok(DataStore.Ingresos);
-        }
+            Id = i.Id,
+            Monto = i.Monto,
+            Fecha = i.Fecha,
+            UsuarioId = i.UsuarioId,
+            CategoriaId = i.CategoriaId
+        });
+        return Ok(response);
+    }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+    [HttpGet("{id}")]
+    public IActionResult GetById(int id)
+    {
+        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        if (ingreso == null)
+            return NotFound($"Ingreso con Id {id} no encontrado.");
+
+        var response = new IngresoDTO
         {
-            var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
-            if (ingreso == null)
-                return NotFound($"Ingreso con Id {id} no encontrado.");
+            Id = ingreso.Id,
+            Monto = ingreso.Monto,
+            Fecha = ingreso.Fecha,
+            UsuarioId = ingreso.UsuarioId,
+            CategoriaId = ingreso.CategoriaId
+        };
+        return Ok(response);
+    }
 
-            return Ok(ingreso);
-        }
-
-        [HttpPost]
-        public IActionResult Post(Ingreso ingreso)
+    [HttpPost]
+    public IActionResult Post(IngresoDTO dto)
+    {
+        var ingreso = new Ingreso
         {
-            ingreso.Id = DataStore.Ingresos.Count > 0
-                ? DataStore.Ingresos.Max(i => i.Id) + 1
-                : 1;
+            Id = DataStore.Ingresos.Count > 0 ? DataStore.Ingresos.Max(i => i.Id) + 1 : 1,
+            Monto = dto.Monto,
+            Fecha = dto.Fecha,
+            UsuarioId = dto.UsuarioId,
+            CategoriaId = dto.CategoriaId
+        };
+        DataStore.Ingresos.Add(ingreso);
 
-            DataStore.Ingresos.Add(ingreso);
-            return CreatedAtAction(nameof(GetById), new { id = ingreso.Id }, ingreso);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, Ingreso ingresoActualizado)
+        var response = new IngresoDTO
         {
-            if (id != ingresoActualizado.Id)
-                return BadRequest("El Id de la URL no coincide con el Id del cuerpo.");
+            Id = ingreso.Id,
+            Monto = ingreso.Monto,
+            Fecha = ingreso.Fecha,
+            UsuarioId = ingreso.UsuarioId,
+            CategoriaId = ingreso.CategoriaId
+        };
+        return CreatedAtAction(nameof(GetById), new { id = ingreso.Id }, response);
+    }
 
-            var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
-            if (ingreso == null)
-                return NotFound($"Ingreso con Id {id} no encontrado.");
+    [HttpPut("{id}")]
+    public IActionResult Put(int id, IngresoDTO dto)
+    {
+        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        if (ingreso == null)
+            return NotFound($"Ingreso con Id {id} no encontrado.");
 
-            ingreso.Monto = ingresoActualizado.Monto;
-            ingreso.Fecha = ingresoActualizado.Fecha;
-            ingreso.UsuarioId = ingresoActualizado.UsuarioId;
-            ingreso.CategoriaId = ingresoActualizado.CategoriaId;
+        ingreso.Monto = dto.Monto;
+        ingreso.Fecha = dto.Fecha;
+        ingreso.UsuarioId = dto.UsuarioId;
+        ingreso.CategoriaId = dto.CategoriaId;
+        return NoContent();
+    }
 
-            return NoContent();
-        }
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        if (ingreso == null)
+            return NotFound($"Ingreso con Id {id} no encontrado.");
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
-            if (ingreso == null)
-                return NotFound($"Ingreso con Id {id} no encontrado.");
-
-            DataStore.Ingresos.Remove(ingreso);
-            return NoContent();
-        }
+        DataStore.Ingresos.Remove(ingreso);
+        return NoContent();
     }
 }
