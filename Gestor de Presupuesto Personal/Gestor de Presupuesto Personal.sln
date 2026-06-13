@@ -3,11 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gestor de Presupuesto Personal.API", "Gestor de Presupuesto Personal.API\Gestor de Presupuesto Personal.API.csproj", "{37849B43-BAAB-4C28-9B7D-07A594061706}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37849B43-BAAB-4C28-9B7D-07A594061706}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37849B43-BAAB-4C28-9B7D-07A594061706}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37849B43-BAAB-4C28-9B7D-07A594061706}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37849B43-BAAB-4C28-9B7D-07A594061706}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C3268543-6625-42B4-9E0A-82C5D4B6123F}
+		SolutionGuid = {9C51A136-583A-4236-A31B-49D6C10EB68C}
 	EndGlobalSection
 EndGlobal
