@@ -9,10 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class CategoriaController : ControllerBase
 {
+    private readonly GPPContext _context;
+
+    public CategoriaController(GPPContext context)
+    {
+        _context = context;
+    }
+
     [HttpGet]
     public IActionResult Get()
     {
-        var response = DataStore.Categorias.Select(c => new CategoriaDTO
+        var response = _context.Categorias.Select(c => new CategoriaDTO
         {
             Id = c.Id,
             Nombre = c.Nombre,
@@ -24,7 +31,7 @@ public class CategoriaController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var categoria = DataStore.Categorias.FirstOrDefault(c => c.Id == id);
+        var categoria = _context.Categorias.FirstOrDefault(c => c.Id == id);
         if (categoria == null)
             return NotFound($"Categoría con Id {id} no encontrada.");
 
@@ -42,11 +49,12 @@ public class CategoriaController : ControllerBase
     {
         var categoria = new Categoria
         {
-            Id = DataStore.Categorias.Count > 0 ? DataStore.Categorias.Max(c => c.Id) + 1 : 1,
             Nombre = dto.Nombre,
             Tipo = dto.Tipo
         };
-        DataStore.Categorias.Add(categoria);
+
+        _context.Categorias.Add(categoria);
+        _context.SaveChanges();
 
         var response = new CategoriaDTO
         {
@@ -60,23 +68,26 @@ public class CategoriaController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Put(int id, CategoriaDTO dto)
     {
-        var categoria = DataStore.Categorias.FirstOrDefault(c => c.Id == id);
+        var categoria = _context.Categorias.FirstOrDefault(c => c.Id == id);
         if (categoria == null)
             return NotFound($"Categoría con Id {id} no encontrada.");
 
         categoria.Nombre = dto.Nombre;
         categoria.Tipo = dto.Tipo;
+
+        _context.SaveChanges();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var categoria = DataStore.Categorias.FirstOrDefault(c => c.Id == id);
+        var categoria = _context.Categorias.FirstOrDefault(c => c.Id == id);
         if (categoria == null)
             return NotFound($"Categoría con Id {id} no encontrada.");
 
-        DataStore.Categorias.Remove(categoria);
+        _context.Categorias.Remove(categoria);
+        _context.SaveChanges();
         return NoContent();
     }
 }

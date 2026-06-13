@@ -9,10 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class IngresoController : ControllerBase
 {
+    private readonly GPPContext _context;
+
+    public IngresoController(GPPContext context)
+    {
+        _context = context;
+    }
+
     [HttpGet]
     public IActionResult Get()
     {
-        var response = DataStore.Ingresos.Select(i => new IngresoDTO
+        var response = _context.Ingresos.Select(i => new IngresoDTO
         {
             Id = i.Id,
             Monto = i.Monto,
@@ -26,7 +33,7 @@ public class IngresoController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
         if (ingreso == null)
             return NotFound($"Ingreso con Id {id} no encontrado.");
 
@@ -46,13 +53,14 @@ public class IngresoController : ControllerBase
     {
         var ingreso = new Ingreso
         {
-            Id = DataStore.Ingresos.Count > 0 ? DataStore.Ingresos.Max(i => i.Id) + 1 : 1,
             Monto = dto.Monto,
             Fecha = dto.Fecha,
             UsuarioId = dto.UsuarioId,
             CategoriaId = dto.CategoriaId
         };
-        DataStore.Ingresos.Add(ingreso);
+
+        _context.Ingresos.Add(ingreso);
+        _context.SaveChanges();
 
         var response = new IngresoDTO
         {
@@ -68,7 +76,7 @@ public class IngresoController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Put(int id, IngresoDTO dto)
     {
-        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
         if (ingreso == null)
             return NotFound($"Ingreso con Id {id} no encontrado.");
 
@@ -76,17 +84,20 @@ public class IngresoController : ControllerBase
         ingreso.Fecha = dto.Fecha;
         ingreso.UsuarioId = dto.UsuarioId;
         ingreso.CategoriaId = dto.CategoriaId;
+
+        _context.SaveChanges();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var ingreso = DataStore.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
         if (ingreso == null)
             return NotFound($"Ingreso con Id {id} no encontrado.");
 
-        DataStore.Ingresos.Remove(ingreso);
+        _context.Ingresos.Remove(ingreso);
+        _context.SaveChanges();
         return NoContent();
     }
 }

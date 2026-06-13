@@ -1,5 +1,11 @@
-var builder = WebApplication.CreateBuilder(args);
 
+using Gestor_de_Presupuesto_Personal.API.Data;
+using Microsoft.EntityFrameworkCore;
+
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<GPPContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
 
 
