@@ -1,6 +1,5 @@
-﻿namespace Gestor_de_Presupuesto_Personal.API.Model;
-
-public class Gasto
+﻿namespace Gestor_de_Presupuesto_Personal.API.Model.Entities;
+public class Ingreso
 {
     public int Id { get; set; }
 

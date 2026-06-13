@@ -2,7 +2,7 @@
 {
 
     using Gestor_de_Presupuesto_Personal.API.Data;
-    using Gestor_de_Presupuesto_Personal.API.Model;
+    using Gestor_de_Presupuesto_Personal.API.Model.Entities;
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]

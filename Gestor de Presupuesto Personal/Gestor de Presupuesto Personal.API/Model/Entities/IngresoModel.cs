@@ -1,4 +1,4 @@
-﻿namespace Gestor_de_Presupuesto_Personal.API.Model;
+﻿namespace Gestor_de_Presupuesto_Personal.API.Model.Entities;
 public class Ingreso
 {
     public int Id { get; set; }
