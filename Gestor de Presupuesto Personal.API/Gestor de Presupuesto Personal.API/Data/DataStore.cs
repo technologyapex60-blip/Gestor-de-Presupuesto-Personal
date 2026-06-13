@@ -7,4 +7,6 @@ public static class DataStore
 {
     public static List<Usuario> Usuarios { get; } = new();
 
+    public static List<Categoria> Categorias { get; } = new();
+
 }
