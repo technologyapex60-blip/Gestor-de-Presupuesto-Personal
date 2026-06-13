@@ -1,6 +1,6 @@
-﻿namespace Gestor_de_Presupuesto_Personal.API.Model.Entities;
+﻿namespace Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
 
-public class Categoria
+public class CategoriaDTO
 {
     public int Id { get; set; }
 
