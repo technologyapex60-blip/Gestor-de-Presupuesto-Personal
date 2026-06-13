@@ -9,4 +9,6 @@ public static class DataStore
 
     public static List<Categoria> Categorias { get; } = new();
 
+    public static List<Ingreso> Ingresos { get; } = new();
+
 }
