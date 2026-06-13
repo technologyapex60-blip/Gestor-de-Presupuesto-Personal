@@ -1,18 +1,25 @@
 ﻿namespace Gestor_de_Presupuesto_Personal.API.Controllers;
 
 using Gestor_de_Presupuesto_Personal.API.Data;
-using Gestor_de_Presupuesto_Personal.API.Model.Entities;
 using Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
+using Gestor_de_Presupuesto_Personal.API.Model.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class GastoController : ControllerBase
 {
+    private readonly GPPContext _context;
+
+    public GastoController(GPPContext context)
+    {
+        _context = context;
+    }
+
     [HttpGet]
     public IActionResult Get()
     {
-        var response = DataStore.Gastos.Select(g => new GastoDTO
+        var response = _context.Gastos.Select(g => new GastoDTO
         {
             Id = g.Id,
             Monto = g.Monto,
@@ -26,7 +33,7 @@ public class GastoController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var gasto = DataStore.Gastos.FirstOrDefault(g => g.Id == id);
+        var gasto = _context.Gastos.FirstOrDefault(g => g.Id == id);
         if (gasto == null)
             return NotFound($"Gasto con Id {id} no encontrado.");
 
@@ -46,13 +53,14 @@ public class GastoController : ControllerBase
     {
         var gasto = new Gasto
         {
-            Id = DataStore.Gastos.Count > 0 ? DataStore.Gastos.Max(g => g.Id) + 1 : 1,
             Monto = dto.Monto,
             Fecha = dto.Fecha,
             UsuarioId = dto.UsuarioId,
             CategoriaId = dto.CategoriaId
         };
-        DataStore.Gastos.Add(gasto);
+
+        _context.Gastos.Add(gasto);
+        _context.SaveChanges();
 
         var response = new GastoDTO
         {
@@ -68,7 +76,7 @@ public class GastoController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Put(int id, GastoDTO dto)
     {
-        var gasto = DataStore.Gastos.FirstOrDefault(g => g.Id == id);
+        var gasto = _context.Gastos.FirstOrDefault(g => g.Id == id);
         if (gasto == null)
             return NotFound($"Gasto con Id {id} no encontrado.");
 
@@ -76,17 +84,20 @@ public class GastoController : ControllerBase
         gasto.Fecha = dto.Fecha;
         gasto.UsuarioId = dto.UsuarioId;
         gasto.CategoriaId = dto.CategoriaId;
+
+        _context.SaveChanges();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var gasto = DataStore.Gastos.FirstOrDefault(g => g.Id == id);
+        var gasto = _context.Gastos.FirstOrDefault(g => g.Id == id);
         if (gasto == null)
             return NotFound($"Gasto con Id {id} no encontrado.");
 
-        DataStore.Gastos.Remove(gasto);
+        _context.Gastos.Remove(gasto);
+        _context.SaveChanges();
         return NoContent();
     }
 }
