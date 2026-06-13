@@ -8,7 +8,7 @@ public class Usuario
 
     public string Correo { get; set; } = string.Empty;
 
-    public List<Ingreso> Ingresos { get; set; } = new();
+  
 
 
 
