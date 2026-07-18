@@ -1,26 +1,26 @@
 ﻿namespace Gestor_de_Presupuesto_Personal.API.Controllers;
 
 using Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
+using PP.Application.Contract;
 using PP.Domain.Entities;
-using PP.Domain.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsuarioController : ControllerBase
 {
-    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly IUsuarioService _usuarioService;
 
-    public UsuarioController(IUsuarioRepository usuarioRepository)
+    public UsuarioController(IUsuarioService usuarioService)
     {
-        _usuarioRepository = usuarioRepository;
+        _usuarioService = usuarioService;
     }
 
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        var usuarios = await _usuarioRepository.GetAllAsync();
-        var response = usuarios.Select(u => new UsuarioDTO
+        var result = await _usuarioService.GetAllAsync();
+        var response = result.Data!.Select(u => new UsuarioDTO
         {
             Id = u.Id,
             Nombre = u.Nombre,
@@ -32,15 +32,15 @@ public class UsuarioController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(id);
-        if (usuario == null)
-            return NotFound($"Usuario con Id {id} no encontrado.");
+        var result = await _usuarioService.GetByIdAsync(id);
+        if (!result.Success)
+            return NotFound(result.Message);
 
         var response = new UsuarioDTO
         {
-            Id = usuario.Id,
-            Nombre = usuario.Nombre,
-            Correo = usuario.Correo
+            Id = result.Data!.Id,
+            Nombre = result.Data.Nombre,
+            Correo = result.Data.Correo
         };
         return Ok(response);
     }
@@ -54,39 +54,39 @@ public class UsuarioController : ControllerBase
             Correo = dto.Correo
         };
 
-        await _usuarioRepository.AddAsync(usuario);
+        var result = await _usuarioService.AddAsync(usuario);
 
         var response = new UsuarioDTO
         {
-            Id = usuario.Id,
-            Nombre = usuario.Nombre,
-            Correo = usuario.Correo
+            Id = result.Data!.Id,
+            Nombre = result.Data.Nombre,
+            Correo = result.Data.Correo
         };
-        return CreatedAtAction(nameof(GetById), new { id = usuario.Id }, response);
+        return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, response);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, UsuarioDTO dto)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(id);
-        if (usuario == null)
-            return NotFound($"Usuario con Id {id} no encontrado.");
+        var existingResult = await _usuarioService.GetByIdAsync(id);
+        if (!existingResult.Success)
+            return NotFound(existingResult.Message);
 
+        var usuario = existingResult.Data!;
         usuario.Nombre = dto.Nombre;
         usuario.Correo = dto.Correo;
 
-        await _usuarioRepository.UpdateAsync(usuario);
+        await _usuarioService.UpdateAsync(usuario);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var usuario = await _usuarioRepository.GetByIdAsync(id);
-        if (usuario == null)
-            return NotFound($"Usuario con Id {id} no encontrado.");
+        var result = await _usuarioService.DeleteAsync(id);
+        if (!result.Success)
+            return NotFound(result.Message);
 
-        await _usuarioRepository.DeleteAsync(id);
         return NoContent();
     }
 }

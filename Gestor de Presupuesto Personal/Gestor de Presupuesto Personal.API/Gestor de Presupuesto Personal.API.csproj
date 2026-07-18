@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PP.Application\PP.Application.csproj" />
     <ProjectReference Include="..\PP.Infrastructure\PP.Infrastructure.csproj" />
   </ItemGroup>
 

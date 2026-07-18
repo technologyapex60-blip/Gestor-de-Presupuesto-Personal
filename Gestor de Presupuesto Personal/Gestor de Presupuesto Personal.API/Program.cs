@@ -1,3 +1,5 @@
+using PP.Application.Contract;
+using PP.Application.Service;
 using PP.Domain.Repository;
 using PP.Infrastructure.Context;
 using PP.Infrastructure.Repositories;
@@ -12,6 +14,11 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IGastoRepository, GastoRepository>();
 builder.Services.AddScoped<IIngresoRepository, IngresoRepository>();
+
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IGastoService, GastoService>();
+builder.Services.AddScoped<IIngresoService, IngresoService>();
 
 builder.Services.AddControllers();
 
