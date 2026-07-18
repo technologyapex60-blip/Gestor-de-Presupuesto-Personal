@@ -1,0 +1,11 @@
+﻿namespace PP.Infrastructure.Models
+{
+    public class IngresoModel
+    {
+        public int Id { get; set; }
+        public decimal Monto { get; set; }
+        public DateTime Fecha { get; set; }
+        public int UsuarioId { get; set; }
+        public int CategoriaId { get; set; }
+    }
+}
