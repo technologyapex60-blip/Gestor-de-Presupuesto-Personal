@@ -55,6 +55,8 @@ public class UsuarioController : ControllerBase
         };
 
         var result = await _usuarioService.AddAsync(usuario);
+        if (!result.Success)
+            return BadRequest(result.Message);
 
         var response = new UsuarioDTO
         {
@@ -76,7 +78,10 @@ public class UsuarioController : ControllerBase
         usuario.Nombre = dto.Nombre;
         usuario.Correo = dto.Correo;
 
-        await _usuarioService.UpdateAsync(usuario);
+        var updateResult = await _usuarioService.UpdateAsync(usuario);
+        if (!updateResult.Success)
+            return BadRequest(updateResult.Message);
+
         return NoContent();
     }
 

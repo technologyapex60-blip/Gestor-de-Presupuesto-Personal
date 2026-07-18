@@ -27,13 +27,13 @@ namespace PP.Application.Core
             return ServiceResult<T>.Ok(entity);
         }
 
-        public async Task<ServiceResult<T>> AddAsync(T entity)
+        public virtual async Task<ServiceResult<T>> AddAsync(T entity)
         {
             var created = await _repository.AddAsync(entity);
             return ServiceResult<T>.Ok(created, "Registro creado correctamente.");
         }
 
-        public async Task<ServiceResult<T>> UpdateAsync(T entity)
+        public virtual async Task<ServiceResult<T>> UpdateAsync(T entity)
         {
             await _repository.UpdateAsync(entity);
             return ServiceResult<T>.Ok(entity, "Registro actualizado correctamente.");
