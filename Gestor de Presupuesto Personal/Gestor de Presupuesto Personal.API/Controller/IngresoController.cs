@@ -1,25 +1,26 @@
 ﻿namespace Gestor_de_Presupuesto_Personal.API.Controllers;
 
-using Gestor_de_Presupuesto_Personal.API.Data;
 using Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
-using Gestor_de_Presupuesto_Personal.API.Model.Entities;
+using PP.Domain.Entities;
+using PP.Domain.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class IngresoController : ControllerBase
 {
-    private readonly GPPContext _context;
+    private readonly IIngresoRepository _ingresoRepository;
 
-    public IngresoController(GPPContext context)
+    public IngresoController(IIngresoRepository ingresoRepository)
     {
-        _context = context;
+        _ingresoRepository = ingresoRepository;
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        var response = _context.Ingresos.Select(i => new IngresoDTO
+        var ingresos = await _ingresoRepository.GetAllAsync();
+        var response = ingresos.Select(i => new IngresoDTO
         {
             Id = i.Id,
             Monto = i.Monto,
@@ -31,11 +32,11 @@ public class IngresoController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = await _ingresoRepository.GetByIdAsync(id);
         if (ingreso == null)
-            return NotFound($"Ingreso con Id {id} no encontrado.");
+            return NotFound("Ingreso con Id " + id + " no encontrado.");
 
         var response = new IngresoDTO
         {
@@ -49,7 +50,7 @@ public class IngresoController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Post(IngresoDTO dto)
+    public async Task<IActionResult> Post(IngresoDTO dto)
     {
         var ingreso = new Ingreso
         {
@@ -59,8 +60,7 @@ public class IngresoController : ControllerBase
             CategoriaId = dto.CategoriaId
         };
 
-        _context.Ingresos.Add(ingreso);
-        _context.SaveChanges();
+        await _ingresoRepository.AddAsync(ingreso);
 
         var response = new IngresoDTO
         {
@@ -74,30 +74,29 @@ public class IngresoController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, IngresoDTO dto)
+    public async Task<IActionResult> Put(int id, IngresoDTO dto)
     {
-        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = await _ingresoRepository.GetByIdAsync(id);
         if (ingreso == null)
-            return NotFound($"Ingreso con Id {id} no encontrado.");
+            return NotFound("Ingreso con Id " + id + " no encontrado.");
 
         ingreso.Monto = dto.Monto;
         ingreso.Fecha = dto.Fecha;
         ingreso.UsuarioId = dto.UsuarioId;
         ingreso.CategoriaId = dto.CategoriaId;
 
-        _context.SaveChanges();
+        await _ingresoRepository.UpdateAsync(ingreso);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var ingreso = _context.Ingresos.FirstOrDefault(i => i.Id == id);
+        var ingreso = await _ingresoRepository.GetByIdAsync(id);
         if (ingreso == null)
-            return NotFound($"Ingreso con Id {id} no encontrado.");
+            return NotFound("Ingreso con Id " + id + " no encontrado.");
 
-        _context.Ingresos.Remove(ingreso);
-        _context.SaveChanges();
+        await _ingresoRepository.DeleteAsync(id);
         return NoContent();
     }
 }

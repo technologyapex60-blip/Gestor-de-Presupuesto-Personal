@@ -1,25 +1,26 @@
 ﻿namespace Gestor_de_Presupuesto_Personal.API.Controllers;
 
-using Gestor_de_Presupuesto_Personal.API.Data;
 using Gestor_de_Presupuesto_Personal.API.Model.Entities.DTOs;
-using Gestor_de_Presupuesto_Personal.API.Model.Entities;
+using PP.Domain.Entities;
+using PP.Domain.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
 public class UsuarioController : ControllerBase
 {
-    private readonly GPPContext _context;
+    private readonly IUsuarioRepository _usuarioRepository;
 
-    public UsuarioController(GPPContext context)
+    public UsuarioController(IUsuarioRepository usuarioRepository)
     {
-        _context = context;
+        _usuarioRepository = usuarioRepository;
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        var response = _context.Usuarios.Select(u => new UsuarioDTO
+        var usuarios = await _usuarioRepository.GetAllAsync();
+        var response = usuarios.Select(u => new UsuarioDTO
         {
             Id = u.Id,
             Nombre = u.Nombre,
@@ -29,9 +30,9 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+        var usuario = await _usuarioRepository.GetByIdAsync(id);
         if (usuario == null)
             return NotFound($"Usuario con Id {id} no encontrado.");
 
@@ -45,7 +46,7 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Post(UsuarioDTO dto)
+    public async Task<IActionResult> Post(UsuarioDTO dto)
     {
         var usuario = new Usuario
         {
@@ -53,8 +54,7 @@ public class UsuarioController : ControllerBase
             Correo = dto.Correo
         };
 
-        _context.Usuarios.Add(usuario);
-        _context.SaveChanges();
+        await _usuarioRepository.AddAsync(usuario);
 
         var response = new UsuarioDTO
         {
@@ -66,28 +66,27 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Put(int id, UsuarioDTO dto)
+    public async Task<IActionResult> Put(int id, UsuarioDTO dto)
     {
-        var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+        var usuario = await _usuarioRepository.GetByIdAsync(id);
         if (usuario == null)
             return NotFound($"Usuario con Id {id} no encontrado.");
 
         usuario.Nombre = dto.Nombre;
         usuario.Correo = dto.Correo;
 
-        _context.SaveChanges();
+        await _usuarioRepository.UpdateAsync(usuario);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+        var usuario = await _usuarioRepository.GetByIdAsync(id);
         if (usuario == null)
             return NotFound($"Usuario con Id {id} no encontrado.");
 
-        _context.Usuarios.Remove(usuario);
-        _context.SaveChanges();
+        await _usuarioRepository.DeleteAsync(id);
         return NoContent();
     }
 }
