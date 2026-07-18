@@ -39,6 +39,14 @@ namespace PP.Infrastructure.Context
                 .WithMany(c => c.Ingresos)
                 .HasForeignKey(i => i.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Gasto>()
+                .Property(g => g.Monto)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Ingreso>()
+                .Property(i => i.Monto)
+                .HasPrecision(18, 2);
         }
     }
 }
