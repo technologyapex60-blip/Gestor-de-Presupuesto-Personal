@@ -12,5 +12,8 @@ namespace PP.Domain.Entities
 
         public int CategoriaId { get; set; }
         public Categoria? Categoria { get; set; }
+
+        public override string ObtenerDescripcion()
+            => $"Gasto #{Id}: {Monto:C} el {Fecha:dd/MM/yyyy}";
     }
 }

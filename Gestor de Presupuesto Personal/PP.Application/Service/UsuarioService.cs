@@ -59,5 +59,11 @@ namespace PP.Application.Service
 
             return ServiceResult<Usuario>.Ok(entity);
         }
+
+        private ServiceResult<Usuario> Validar(string nombre, string correo)
+        {
+            var usuarioTemporal = new Usuario { Nombre = nombre, Correo = correo };
+            return Validar(usuarioTemporal);
+        }
     }
 }
