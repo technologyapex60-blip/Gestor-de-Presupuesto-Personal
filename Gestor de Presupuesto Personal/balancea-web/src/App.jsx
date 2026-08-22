@@ -103,7 +103,7 @@ function HeroBalance({ usuarioId, refrescar }) {
       </div>
 
       <div className="grafica-wrap">
-        <ResponsiveContainer width="100%" height={140}>
+        <ResponsiveContainer width="100%" height={150}>
           <BarChart data={dataGrafica} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2A333D" vertical={false} />
             <XAxis
@@ -257,7 +257,7 @@ function FormMovimiento({ endpoint, onCreado, refrescar }) {
   )
 }
 
-function Seccion({ titulo, descripcion, endpoint, renderItem, refrescar, formulario, onRefrescar }) {
+function Seccion({ titulo, descripcion, endpoint, renderItem, refrescar, formulario, onRefrescar, categorias }) {
   const { datos, cargando, error } = useApiList(endpoint, refrescar)
   const { eliminar, eliminandoId } = useEliminar(endpoint, onRefrescar)
   const [abierto, setAbierto] = useState(false)
@@ -282,7 +282,7 @@ function Seccion({ titulo, descripcion, endpoint, renderItem, refrescar, formula
         <ul>
           {datos.length === 0 && <li className="vacio">Sin registros todavia.</li>}
           {datos.map(item => (
-            <li key={item.id}>
+            <li key={item.id} title={renderItem.tooltip ? renderItem.tooltip(item) : undefined}>
               {renderItem(item)}
               <button
                 className="btn-eliminar"
@@ -307,6 +307,8 @@ function App() {
   const disparar = () => setRefrescar(r => r + 1)
 
   const { datos: usuarios } = useApiList('Usuario', refrescar)
+  const { datos: categorias } = useApiList('Categoria', refrescar)
+  const todoVacio = usuarios.length === 0
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', tema)
@@ -322,6 +324,28 @@ function App() {
       setUsuarioSeleccionado(usuarios[0].id)
     }
   }, [usuarios, usuarioSeleccionado])
+
+  const gastoRenderItem = g => (
+    <>
+      <span>{new Date(g.fecha).toLocaleDateString()}</span>
+      <span className="monto" style={{ color: 'var(--ambar)' }}>-${g.monto}</span>
+    </>
+  )
+  gastoRenderItem.tooltip = g => {
+    const cat = categorias.find(c => c.id === g.categoriaId)
+    return cat ? `Categoria: ${cat.nombre}` : undefined
+  }
+
+  const ingresoRenderItem = i => (
+    <>
+      <span>{new Date(i.fecha).toLocaleDateString()}</span>
+      <span className="monto" style={{ color: 'var(--verde)' }}>+${i.monto}</span>
+    </>
+  )
+  ingresoRenderItem.tooltip = i => {
+    const cat = categorias.find(c => c.id === i.categoriaId)
+    return cat ? `Categoria: ${cat.nombre}` : undefined
+  }
 
   return (
     <div className="app">
@@ -351,6 +375,13 @@ function App() {
 
       <HeroBalance usuarioId={usuarioSeleccionado} refrescar={refrescar} />
 
+      {todoVacio && (
+        <div className="bienvenida">
+          <p>Aun no hay datos registrados.</p>
+          <p className="bienvenida-sub">Agrega tu primer usuario para comenzar a usar Balancea.</p>
+        </div>
+      )}
+
       <main className="content">
         <Seccion
           titulo="Usuarios"
@@ -359,7 +390,7 @@ function App() {
           refrescar={refrescar}
           onRefrescar={disparar}
           formulario={<FormUsuario onCreado={disparar} />}
-          renderItem={u => <><span>{u.nombre}</span><span className="dato-sec">{u.correo}</span></>}
+          renderItem={u => <><span>{u.nombre}</span><span className="dato-sec" title={u.correo}>{u.correo}</span></>}
         />
 
         <Seccion
@@ -379,12 +410,8 @@ function App() {
           refrescar={refrescar}
           onRefrescar={disparar}
           formulario={<FormMovimiento endpoint="Gasto" onCreado={disparar} refrescar={refrescar} />}
-          renderItem={g => (
-            <>
-              <span>{new Date(g.fecha).toLocaleDateString()}</span>
-              <span className="monto" style={{ color: 'var(--ambar)' }}>-${g.monto}</span>
-            </>
-          )}
+          renderItem={gastoRenderItem}
+          categorias={categorias}
         />
 
         <Seccion
@@ -394,17 +421,13 @@ function App() {
           refrescar={refrescar}
           onRefrescar={disparar}
           formulario={<FormMovimiento endpoint="Ingreso" onCreado={disparar} refrescar={refrescar} />}
-          renderItem={i => (
-            <>
-              <span>{new Date(i.fecha).toLocaleDateString()}</span>
-              <span className="monto" style={{ color: 'var(--verde)' }}>+${i.monto}</span>
-            </>
-          )}
+          renderItem={ingresoRenderItem}
+          categorias={categorias}
         />
       </main>
 
       <footer className="footer">
-        Balancea &middot; Proyecto final &middot; Arquitectura distribuida .NET + React
+        Balancea &middot; Tu dinero, bajo control
       </footer>
     </div>
   )
